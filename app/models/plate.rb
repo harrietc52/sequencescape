@@ -39,6 +39,37 @@ class Plate < Labware
   has_many :wells, inverse_of: :plate, foreign_key: :labware_id do
     # Build empty wells for the plate.
     def construct!
+      _construct_with_import!
+    end
+
+    def _construct_with_import!
+      plate = proxy_association.owner
+      plate.maps.in_row_major_order.ids.map do |location_id|
+        { map_id: location_id, labware_id: plate.id }
+      end.tap do |wells|
+        ActiveRecord::Base.transaction do
+          # Receptales:  `sti_type`, `map_id`, `labware_id
+          # Well attributes: create empty well. (with UUID)
+          # UUID: `resource_type`, `resource_id`, `external_id`
+
+          wells = wells.map { |w| Well.new(w)} 
+          wells.each do |well|
+            well.run_callbacks(:save) { false }
+            well.run_callbacks(:create) { false }
+          end
+          
+          uuids = wells.map{|w| w.build_uuid_object(resource: w) }
+          well_attributes = wells.map{|w| WellAttribute.new(well_id: w.id)}
+
+          Well.import(wells, validate: true)
+          Uuid.import(uuids, validate: true)
+          WellAttribute.import(well_attributes, validate: true)
+          # create_uuid_object!(resource: self)
+        end
+      end
+    end
+
+    def _construct_without_import!
       plate = proxy_association.owner
       plate.maps.in_row_major_order.ids.map do |location_id|
         { map_id: location_id }
@@ -46,6 +77,7 @@ class Plate < Labware
         plate.wells.create!(wells)
       end
     end
+
 
     # Returns the wells with their pool identifier included
     def with_pool_id
