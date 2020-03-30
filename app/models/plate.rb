@@ -39,7 +39,7 @@ class Plate < Labware
   has_many :wells, inverse_of: :plate, foreign_key: :labware_id do
     # Build empty wells for the plate.
     def construct!
-      _construct_with_import!
+      _construct_without_import!
     end
 
     def _construct_with_import!
