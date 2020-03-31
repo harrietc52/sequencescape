@@ -150,7 +150,19 @@ class PlatePurpose < Purpose
   end
 
   def create!(*args, &block)
-    _create_with_import!(*args, &block)
+    # _create_without_import!(*args, &block)
+
+    attributes          = args.extract_options!
+    do_not_create_wells = args.first.present?
+    attributes[:size] ||= size
+    attributes[:purpose] = self
+    number = attributes.delete(:barcode)
+    prefix = (attributes.delete(:barcode_prefix) || barcode_prefix).prefix
+    attributes[:sanger_barcode] ||= { prefix: prefix, number: number }
+    target_class.create_with_barcode!(attributes, &block).tap do |plate|
+      plate.wells.construct! unless do_not_create_wells
+    end
+
   end
 
   # For performance testing

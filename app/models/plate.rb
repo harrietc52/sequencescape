@@ -39,7 +39,14 @@ class Plate < Labware
   has_many :wells, inverse_of: :plate, foreign_key: :labware_id do
     # Build empty wells for the plate.
     def construct!
-      _construct_without_import!
+      plate = proxy_association.owner
+      plate.maps.in_row_major_order.ids.map do |location_id|
+        { map_id: location_id }
+      end.tap do |wells|
+        plate.wells.create!(wells)
+      end
+
+      # _construct_without_import!
     end
 
     def _construct_with_import!
@@ -64,6 +71,7 @@ class Plate < Labware
           Well.import(wells, validate: true)
           Uuid.import(uuids, validate: true)
           WellAttribute.import(well_attributes, validate: true)
+          
           # create_uuid_object!(resource: self)
         end
       end

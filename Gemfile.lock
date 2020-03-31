@@ -406,7 +406,7 @@ GEM
     ruby-oci8 (2.2.8)
     ruby-ole (1.2.12.2)
     ruby-plsql (0.7.1)
-    ruby-prof (1.1.0)
+    ruby-prof (0.15.9)
     ruby-progressbar (1.10.1)
     ruby-units (2.3.1)
     ruby2_keywords (0.0.2)
@@ -586,7 +586,7 @@ DEPENDENCIES
   rubocop-rails
   rubocop-rspec
   ruby-oci8
-  ruby-prof
+  ruby-prof (= 0.15.9)
   ruby-units
   rubyzip
   sanger_barcode_format!

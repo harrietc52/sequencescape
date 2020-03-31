@@ -159,10 +159,11 @@ end
 
 group :profile do
   # Ruby prof requires a separate environments so that is can run in production like mode.
-  gem 'ruby-prof'
+  gem 'ruby-prof', '0.15.9'
 end
 
 group :test do
+  gem 'ruby-prof', '0.15.9'
   gem 'rspec-html-matchers'
   gem 'rspec-rails', require: false
   # Rails performance tests
